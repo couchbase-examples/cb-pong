@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>SerialQueue</id>
+    <version>2.1.0</version>
+    <authors>Orion Edwards</authors>
+    <owners>Orion Edwards</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE</license>
+    <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
+    <projectUrl>https://github.com/borland/SerialQueue</projectUrl>
+    <description>C# Implementation of a SerialQueue in the style of Apple's Grand Central Dispatch queues.</description>
+    <copyright>Orion Edwards 2020</copyright>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.2" />
+      <group targetFramework=".NETStandard2.0" />
+    </dependencies>
+  </metadata>
+</package>
