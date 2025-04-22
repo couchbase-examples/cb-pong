@@ -37,7 +37,7 @@ public class DatabaseManager : MonoBehaviour
         config.ReplicatorType = ReplicatorType.PushAndPull;
         config.EnableAutoPurge = false;
         config.Continuous = true;
-        config.Authenticator = new BasicAuthenticator("pongwithunity@couchbase.com", "PongPongPong@123");
+        config.Authenticator = new BasicAuthenticator("<username>", "<password>");
         
         var thisReplicator = new Replicator(config);
 
