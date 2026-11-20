@@ -68,8 +68,11 @@ The game is built with Unity's 2D physics system and consists of several key com
    public IResultSet GetAllReplays()
    ...
    public Document GetEntireDoc(string doc_id)
+   ...
+   public List<Vector2> GetBallPositions(string doc_id)
+   public List<Vector2> GetPaddlePositions(string doc_id, string trackKey)
    ```
-   Uses Couchbase Lite's QueryBuilder to retrieve recent games ordered by timestamp.
+   Uses Couchbase Lite's QueryBuilder to retrieve recent games ordered by timestamp. `GetBallPositions`/`GetPaddlePositions` decode a replay's position arrays back into Unity `Vector2` frames, so the replay document schema (`ballInfo`, `paddleInfo`, `paddleX`, ...) is defined only in `DatabaseManager`.
 
 3. **Sync Replication**:
    ```csharp
@@ -100,8 +103,8 @@ The game is built with Unity's 2D physics system and consists of several key com
 1. **Selection**: User selects a replay from the UI list populated by `GetLatestTenReplays()`
 2. **Loading**: Selected replay ID is passed to the replay scene via `DatabaseManager.SetId()`
 3. **Reconstruction**:
-   - `ReplayBall` retrieves ball position data and replays movement frame by frame
-   - `ReplayPlayerPaddle` components do the same for both paddles
+   - `ReplayBall` retrieves ball positions via `DatabaseManager.GetBallPositions()` and replays movement frame by frame
+   - `ReplayPlayerPaddle` components do the same for both paddles via `GetPaddlePositions()`
    - Score display is updated based on stored values
 
 ### Database Synchronization

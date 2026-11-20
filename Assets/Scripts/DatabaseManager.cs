@@ -95,39 +95,57 @@ public class DatabaseManager : MonoBehaviour
         return doc;
     }
 
+    // Replay document schema. The writer (SaveData) and the readers
+    // (GetBallPositions / GetPaddlePositions) share these names, so replay
+    // components never need to know how frames are stored.
+    public const string BallTrackKey = "ballInfo";
+    public const string Paddle1TrackKey = "paddleInfo";
+    public const string Paddle2TrackKey = "paddleInfo2";
+
+    public List<Vector2> GetBallPositions(string doc_id){
+        return ReadTrack(doc_id, BallTrackKey, "ballX", "ballY");
+    }
+
+    public List<Vector2> GetPaddlePositions(string doc_id, string trackKey){
+        return ReadTrack(doc_id, trackKey, "paddleX", "paddleY");
+    }
 
     public void SaveData(string id, List<Vector2> frames, List<Vector2> frames2, List<Vector2> ballInfo, int p1Score, int p2Score){
         Debug.Log(frames.Count);
         var doc = new MutableDocument(id);
-        var frameArray = new MutableArrayObject();
-        foreach(var frame in frames){
-            var frameDict = new MutableDictionaryObject();
-            frameDict.SetFloat("paddleX", frame.x);
-            frameDict.SetFloat("paddleY", frame.y);
-            frameArray.AddDictionary(frameDict);
-        }
-        var frameArray2 = new MutableArrayObject();
-        foreach(var frame in frames2){
-            var frameDict2 = new MutableDictionaryObject();
-            frameDict2.SetFloat("paddleX", frame.x);
-            frameDict2.SetFloat("paddleY", frame.y);
-            frameArray2.AddDictionary(frameDict2);
-        }
-        var ballPositionArray = new MutableArrayObject();
-        foreach(var ballPos in ballInfo){
-            var ballDict = new MutableDictionaryObject();
-            ballDict.SetFloat("ballX", ballPos.x);
-            ballDict.SetFloat("ballY", ballPos.y);
-            ballPositionArray.AddDictionary(ballDict);
-        }
 
-        doc.SetArray("ballInfo", ballPositionArray);
-        doc.SetArray("paddleInfo", frameArray);
-        doc.SetArray("paddleInfo2", frameArray2);
+        doc.SetArray(BallTrackKey, ToTrackArray(ballInfo, "ballX", "ballY"));
+        doc.SetArray(Paddle1TrackKey, ToTrackArray(frames, "paddleX", "paddleY"));
+        doc.SetArray(Paddle2TrackKey, ToTrackArray(frames2, "paddleX", "paddleY"));
         doc.SetDate("timestamp", DateTime.Now);
         doc.SetInt("p1Score", p1Score);
         doc.SetInt("p2Score", p2Score);
         _col.Save(doc);
+    }
+
+    private static MutableArrayObject ToTrackArray(List<Vector2> positions, string xKey, string yKey){
+        var array = new MutableArrayObject();
+        foreach(var pos in positions){
+            var dict = new MutableDictionaryObject();
+            dict.SetFloat(xKey, pos.x);
+            dict.SetFloat(yKey, pos.y);
+            array.AddDictionary(dict);
+        }
+        return array;
+    }
+
+    private List<Vector2> ReadTrack(string doc_id, string trackKey, string xKey, string yKey){
+        var positions = new List<Vector2>();
+        var array = GetEntireDoc(doc_id)?.GetArray(trackKey);
+        if(array == null){
+            Debug.LogWarning($"Replay {doc_id} has no '{trackKey}' track");
+            return positions;
+        }
+        for(int i = 0; i < array.Count; i++){
+            var dict = array.GetDictionary(i);
+            positions.Add(new Vector2(dict.GetFloat(xKey), dict.GetFloat(yKey)));
+        }
+        return positions;
     }
 
     public void SetId(string id){
